@@ -2,25 +2,9 @@
 
 Learning from video content
 
-## Fast
+## Get video
 
-Download video from X URL with https://twitsave.com
-
-Extract audio:
-
-```
-ffmpeg -i \
-video/Elon\ Musk\ and\ Jordan\ Peterson.mp4 \
-audio/Elon\ Musk\ and\ Jordan\ Peterson.wav
-```
-
-Upload to Google:
-
-```
-gsutil cp \
-audio/Elon\ Musk\ and\ Jordan\ Peterson.wav \
-gs://audio-transcription-arbatov
-```
+Download video from X URL with https://twitsave.com or get directly from X.
 
 ## Env
 
@@ -44,5 +28,5 @@ Get text:
 ```
 python3 get-text.py \
 /Users/zhenya/video-learning/audio/Elon\ Musk\ and\ Jordan\ Peterson.wav \
-~/video-learning/text
+./transcriptions
 ```
