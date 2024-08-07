@@ -2,7 +2,7 @@ import sys
 import os
 import nltk
 
-from rpunct import RestorePuncts
+from deepmultilingualpunctuation import PunctuationModel
 
 nltk.download('punkt')
 
@@ -14,8 +14,8 @@ def get_sentences(input_path, output_path):
     with open(input_path, 'r') as file:
         text = file.read()
 
-    rpunct = RestorePuncts()
-    punctuated_text = rpunct.punctuate(text)
+    model = PunctuationModel()
+    punctuated_text = model.restore_punctuation(text)
         
     sentences = nltk.sent_tokenize(punctuated_text)
     
