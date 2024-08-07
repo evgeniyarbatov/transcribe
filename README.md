@@ -30,3 +30,11 @@ python3 get-text.py \
 /Users/zhenya/video-learning/audio/Elon\ Musk\ and\ Jordan\ Peterson.wav \
 ./transcriptions
 ```
+
+Split into sentences:
+
+```
+python3 get-sentences.py \
+./transcriptions/Elon\ Musk\ and\ Jordan\ Peterson.txt \
+./sentences
+```

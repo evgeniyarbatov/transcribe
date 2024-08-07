@@ -6,8 +6,7 @@ all: venv install
 
 venv:
 	python3 -m venv $(VENV_PATH)
-	pip3 install --upgrade pip
 
 install: 
-	source $(VENV_PATH)/bin/activate 
-	pip install -r requirements.txt
+	source $(VENV_PATH)/bin/activate && \
+	pip3 install -q -r requirements.txt
