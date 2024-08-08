@@ -1,4 +1,3 @@
 pydub
 SpeechRecognition
-nltk
 deepmultilingualpunctuation

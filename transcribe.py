@@ -1,15 +1,11 @@
 
 import sys
-import os
 import json
-import nltk
 
 import speech_recognition as sr
 
 from deepmultilingualpunctuation import PunctuationModel
 from pydub import AudioSegment
-
-nltk.download('punkt')
 
 CHUNK_LENGTH_MS = 60000
 
@@ -47,31 +43,16 @@ def transcribe(chunk):
     except:
         return ''
 
-def transcribe_chunks(
-  chunks, 
-  output_path,
-):
-  for idx, chunk in enumerate(chunks, start=1):
-    print(f"Processing: {idx} / {len(chunks)}")
-          
-    text = transcribe(chunk)
-    
-    with open(output_path, 'a') as file:
-      file.write(f"{text}\n")
+def transcribe_chunks(chunks):
+    text = ""
+    for idx, chunk in enumerate(chunks, start=1):
+        print(f"Processing: {idx} / {len(chunks)}")
+        text += transcribe(chunk)
+    return text
 
-def get_sentences(input_path, output_path):
-    with open(input_path, 'r') as file:
-        text = file.read()
-
+def punctuate(text):
     model = PunctuationModel()
-    punctuated_text = model.restore_punctuation(text)
-        
-    sentences = nltk.sent_tokenize(punctuated_text)
-    
-    with open(output_path, 'w') as output_file:
-        for sentence in sentences:
-            capitalized_sentence = sentence.capitalize()
-            output_file.write(f"- {capitalized_sentence}\n")
+    return model.restore_punctuation(text)
 
 def main(args):
     video_path = args[0] 
@@ -80,9 +61,11 @@ def main(args):
     audio = get_audio(video_path)
     chunks = split_audio(audio, CHUNK_LENGTH_MS)
 
-    transcribe_chunks(chunks, output_path)
+    text = transcribe_chunks(chunks, output_path)
+    text = punctuate(text)
     
-    get_sentences(input_path, output_path)
+    with open(output_path, 'w') as output_file:
+        output_file.write(text)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
