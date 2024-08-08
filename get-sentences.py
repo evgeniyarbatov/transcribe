@@ -1,14 +1,9 @@
 import sys
-import os
 import nltk
 
 from deepmultilingualpunctuation import PunctuationModel
 
 nltk.download('punkt')
-
-def get_filename(file_path):
-  file_name, _ = os.path.basename(file_path).split('.')
-  return file_name
 
 def get_sentences(input_path, output_path):
     with open(input_path, 'r') as file:
@@ -26,13 +21,7 @@ def get_sentences(input_path, output_path):
 
 def main(args):
     input_path = args[0] 
-    output_dir = args[1]
-
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    file_name = get_filename(input_path)
-    output_path = f"{output_dir}/{file_name}.md"
+    output_path = args[1]
 
     get_sentences(input_path, output_path)
 

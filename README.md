@@ -1,16 +1,15 @@
-# learn-from-video
+# Transcribe video
 
-Learning from video content
+Generate video transcript for reading offline.
 
 ## Get video
 
-Download video from X URL with https://twitsave.com or get directly from X.
+Download video and store in `~/Documents/offline-video/video`
 
-## Env
+## Extract transcript
 
 ```
 make
-source ~/.venv/learn-from-video/bin/activate 
 ```
 
 ## Pipeline

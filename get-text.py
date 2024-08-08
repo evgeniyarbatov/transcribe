@@ -27,7 +27,7 @@ def save_to_cache(file_name):
         return new_func
     return decorator
   
-@save_to_cache('transcribe.json')
+@save_to_cache('cache/transcribe-cache.json')
 def transcribe(chunk_file):
   recognizer = sr.Recognizer()
   
@@ -67,10 +67,7 @@ def transcribe_chunks(
 
 def main(args):
   audio_path = args[0] 
-  output_dir = args[1]
-
-  if not os.path.exists(output_dir):
-      os.makedirs(output_dir)
+  output_path = args[1]
 
   file_name = get_filename(audio_path)
   output_path = f"{output_dir}/{file_name}.txt"
