@@ -3,7 +3,7 @@ YOUTUBE_URLS = \
     "https://www.youtube.com/watch?v=K_z5oKC6r4M&t=71s"
 
 VIDEO_DIR := ~/Downloads/audio
-TRANSCRIPTS_DIR := ~/gitRepo/video-transcripts
+TRANSCRIPTS_DIR := ~/gitRepo/video-transcripts/raw
 
 VENV_PATH = ~/.venv/learn-from-video
 

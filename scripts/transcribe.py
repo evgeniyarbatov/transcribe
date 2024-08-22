@@ -37,21 +37,22 @@ def transcribe(chunk_file):
     except sr.UnknownValueError:
         return ''
 
-def transcribe_audio_chunks(chunks, filename):
+def transcribe_audio_chunks(chunks):
     text = ""
     for idx, chunk in enumerate(chunks, start=1):
-        chunk_file = f"/tmp/{filename}_{idx}.wav"
+        chunk_file = f"/tmp/{idx}.wav"
         chunk.export(chunk_file, format="wav")
+        
         text += transcribe(chunk_file)
+        os.remove(chunk_file)
     return text
 
 def punctuate_text(text):
     return PunctuationModel().restore_punctuation(text)
 
 def process_audio_file(audio_path, transcript_path):
-    filename = os.path.splitext(os.path.basename(audio_path))[0]
     chunks = get_audio_chunks(audio_path)
-    text = transcribe_audio_chunks(chunks, filename)
+    text = transcribe_audio_chunks(chunks)
     punctuated_text = punctuate_text(text)
     
     with open(transcript_path, 'w') as output_file:
@@ -60,10 +61,20 @@ def process_audio_file(audio_path, transcript_path):
 def main(args):
     audio_dir, transcript_dir = args
     for audio_file in os.listdir(audio_dir):
-        if audio_file.endswith('.wav'):
-            audio_path = os.path.join(audio_dir, audio_file)
-            transcript_path = os.path.join(transcript_dir, f"{os.path.splitext(audio_file)[0]}.txt")
-            process_audio_file(audio_path, transcript_path)
+        if not audio_file.endswith('.wav'):
+            continue
+
+        audio_path = os.path.join(audio_dir, audio_file)
+        audio_name, _ = os.path.splitext(audio_file)
+        
+        transcript_path = os.path.join(
+            transcript_dir, 
+            f"{audio_name}.txt"
+        )
+        if os.path.exists(transcript_path):
+            continue
+        
+        process_audio_file(audio_path, transcript_path)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
