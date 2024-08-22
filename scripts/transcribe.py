@@ -32,9 +32,12 @@ def save_to_cache(file_name):
     return decorator
   
 @save_to_cache('cache/transcribe-cache.json')
-def transcribe(chunk):
+def transcribe(chunk_file):
     recognizer = sr.Recognizer()
-    audio_data = recognizer.record(chunk)
+    
+    with sr.AudioFile(chunk_file) as source:
+        audio_data = recognizer.record(source)
+    
     try:
         text = recognizer.recognize_google(
             audio_data, 
@@ -44,11 +47,15 @@ def transcribe(chunk):
     except:
         return ''
 
-def transcribe_chunks(chunks):
+def transcribe_chunks(chunks, filename):
     text = ""
     for idx, chunk in enumerate(chunks, start=1):
         print(f"Processing: {idx} / {len(chunks)}")
-        text += transcribe(chunk)
+        
+        chunk_file = f"/tmp/{filename}_{idx}.wav"
+        chunk.export(chunk_file, format="wav")
+        
+        text += transcribe(chunk_file)
     return text
 
 def punctuate(text):
@@ -63,12 +70,13 @@ def main(args):
         f for f in os.listdir(audio_dir) if f.endswith('.wav')
     ]
     for audio_file in audio_files:
+        audio_filename, _ = os.path.basename(audio_file).split('.')
         audio_path = f'{audio_dir}/{audio_file}'
         
         audio = get_audio(audio_path)
         chunks = split_audio(audio, CHUNK_LENGTH_MS)
 
-        text = transcribe_chunks(chunks)
+        text = transcribe_chunks(chunks, audio_filename)
         text = punctuate(text)
         
         filename, _ = os.path.splitext(
