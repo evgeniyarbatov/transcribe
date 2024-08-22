@@ -9,7 +9,7 @@ Update `Makefile` with URLs you want to transcribe:
 ```
 YOUTUBE_URLS = \
 	"https://www.youtube.com/watch?v=oIbcLMFmT78" \
-  "https://www.youtube.com/watch?v=K_z5oKC6r4M&t=71s"
+  	"https://www.youtube.com/watch?v=K_z5oKC6r4M&t=71s"
 ```
 
 Change destination of where to save audio files and transcripts:
