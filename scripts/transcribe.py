@@ -1,6 +1,7 @@
 
 import sys
 import json
+import os
 
 import speech_recognition as sr
 
@@ -9,8 +10,8 @@ from pydub import AudioSegment
 
 CHUNK_LENGTH_MS = 60000
 
-def get_audio(video_path, output_path):
-    return AudioSegment.from_file(video_path)
+def get_audio(audio_path):
+    return AudioSegment.from_file(audio_path)
     
 def split_audio(audio, chunk_length_ms):
     chunks = [audio[i:i + chunk_length_ms] for i in range(0, len(audio), chunk_length_ms)]
@@ -55,17 +56,28 @@ def punctuate(text):
     return model.restore_punctuation(text)
 
 def main(args):
-    video_path = args[0] 
-    output_path = args[1]
+    audio_dir = args[0] 
+    transcript_dir = args[1]
 
-    audio = get_audio(video_path)
-    chunks = split_audio(audio, CHUNK_LENGTH_MS)
+    audio_files = [
+        f for f in os.listdir(audio_dir) if f.endswith('.wav')
+    ]
+    for audio_file in audio_files:
+        audio_path = f'{audio_dir}/{audio_file}'
+        
+        audio = get_audio(audio_path)
+        chunks = split_audio(audio, CHUNK_LENGTH_MS)
 
-    text = transcribe_chunks(chunks, output_path)
-    text = punctuate(text)
-    
-    with open(output_path, 'w') as output_file:
-        output_file.write(text)
+        text = transcribe_chunks(chunks)
+        text = punctuate(text)
+        
+        filename, _ = os.path.splitext(
+            os.path.basename(audio_path)
+        )
+        transcript_file = f"{transcript_dir}/{filename}.txt"
+        
+        with open(transcript_file, 'w') as output_file:
+            output_file.write(text)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
