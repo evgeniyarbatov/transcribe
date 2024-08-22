@@ -1,91 +1,69 @@
-
 import sys
 import json
 import os
 
 import speech_recognition as sr
-
 from deepmultilingualpunctuation import PunctuationModel
 from pydub import AudioSegment
 
 CHUNK_LENGTH_MS = 60000
 
-def get_audio(audio_path):
-    return AudioSegment.from_file(audio_path)
-    
-def split_audio(audio, chunk_length_ms):
-    chunks = [audio[i:i + chunk_length_ms] for i in range(0, len(audio), chunk_length_ms)]
-    return chunks
+def get_audio_chunks(audio_path, chunk_length_ms=CHUNK_LENGTH_MS):
+    audio = AudioSegment.from_file(audio_path)
+    return [audio[i:i + chunk_length_ms] for i in range(0, len(audio), chunk_length_ms)]
 
-def save_to_cache(file_name):
-    def decorator(original_func):
+def cache_results(file_name):
+    def decorator(func):
         try:
             cache = json.load(open(file_name, 'r'))
         except (IOError, ValueError):
             cache = {}
-        def new_func(param):
+
+        def wrapper(param):
             if param not in cache:
-                cache[param] = original_func(param)
+                cache[param] = func(param)
                 json.dump(cache, open(file_name, 'w'))
             return cache[param]
-        return new_func
+        return wrapper
     return decorator
-  
-@save_to_cache('cache/transcribe-cache.json')
+
+@cache_results('cache/transcribe-cache.json')
 def transcribe(chunk_file):
     recognizer = sr.Recognizer()
-    
     with sr.AudioFile(chunk_file) as source:
         audio_data = recognizer.record(source)
-    
     try:
-        text = recognizer.recognize_google(
-            audio_data, 
-            language='en-US',
-        )
-        return text
-    except:
+        return recognizer.recognize_google(audio_data, language='en-US')
+    except sr.UnknownValueError:
         return ''
 
-def transcribe_chunks(chunks, filename):
+def transcribe_audio_chunks(chunks, filename):
     text = ""
     for idx, chunk in enumerate(chunks, start=1):
-        print(f"Processing: {idx} / {len(chunks)}")
-        
         chunk_file = f"/tmp/{filename}_{idx}.wav"
         chunk.export(chunk_file, format="wav")
-        
         text += transcribe(chunk_file)
     return text
 
-def punctuate(text):
-    model = PunctuationModel()
-    return model.restore_punctuation(text)
+def punctuate_text(text):
+    return PunctuationModel().restore_punctuation(text)
+
+def process_audio_file(audio_path, transcript_path):
+    filename = os.path.splitext(os.path.basename(audio_path))[0]
+    chunks = get_audio_chunks(audio_path)
+    text = transcribe_audio_chunks(chunks, filename)
+    punctuated_text = punctuate_text(text)
+    
+    with open(transcript_path, 'w') as output_file:
+        output_file.write(punctuated_text)
 
 def main(args):
-    audio_dir = args[0] 
-    transcript_dir = args[1]
-
-    audio_files = [
-        f for f in os.listdir(audio_dir) if f.endswith('.wav')
-    ]
-    for audio_file in audio_files:
-        audio_filename, _ = os.path.basename(audio_file).split('.')
-        audio_path = f'{audio_dir}/{audio_file}'
-        
-        audio = get_audio(audio_path)
-        chunks = split_audio(audio, CHUNK_LENGTH_MS)
-
-        text = transcribe_chunks(chunks, audio_filename)
-        text = punctuate(text)
-        
-        filename, _ = os.path.splitext(
-            os.path.basename(audio_path)
-        )
-        transcript_file = f"{transcript_dir}/{filename}.txt"
-        
-        with open(transcript_file, 'w') as output_file:
-            output_file.write(text)
+    audio_dir, transcript_dir = args
+    for audio_file in os.listdir(audio_dir):
+        if audio_file.endswith('.wav'):
+            audio_path = os.path.join(audio_dir, audio_file)
+            transcript_path = os.path.join(transcript_dir, f"{os.path.splitext(audio_file)[0]}.txt")
+            process_audio_file(audio_path, transcript_path)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
