@@ -40,6 +40,8 @@ def transcribe(chunk_file):
 def transcribe_audio_chunks(chunks):
     text = ""
     for idx, chunk in enumerate(chunks, start=1):
+        print(f"Processing: {idx} / {len(chunks)}")
+        
         chunk_file = f"/tmp/{idx}.wav"
         chunk.export(chunk_file, format="wav")
         
