@@ -2,7 +2,7 @@ YOUTUBE_URLS = \
 	"https://www.youtube.com/watch?v=oIbcLMFmT78" \
     "https://www.youtube.com/watch?v=K_z5oKC6r4M&t=71s"
 
-VIDEO_DIR := ~/Downloads/offline-video
+VIDEO_DIR := ~/Downloads/audio
 TRANSCRIPTS_DIR := ~/gitRepo/video-transcripts
 
 VENV_PATH = ~/.venv/learn-from-video
@@ -20,8 +20,8 @@ download:
 	source $(VENV_PATH)/bin/activate && \
 	python3 scripts/download.py $(VIDEO_DIR) $(YOUTUBE_URLS) 
 
-transcribe:
+text:
 	source $(VENV_PATH)/bin/activate && \
 	python3 scripts/transcribe.py $(VIDEO_DIR) $(TRANSCRIPTS_DIR)
 
-.PHONY: ven install download transcribe
+.PHONY: ven install download text
