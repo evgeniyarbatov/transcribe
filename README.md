@@ -19,7 +19,7 @@ VIDEO_DIR := ~/Downloads/audio
 TRANSCRIPTS_DIR := ~/gitRepo/video-transcripts/raw
 ```
 
-Download videos:
+Download audio:
 
 ```
 make download
